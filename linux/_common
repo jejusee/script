@@ -109,13 +109,19 @@ function check_header() {
   echo -n "$filename... "; if [ ! -f $filename ]; then curl -sO "$1"; fi; source "$filename"; echo "OK!!";
 }
 
-function output_title() {
+function output_header() {
   echo ""
   echo "################################################################################"
   echo "##"
   echo "## $1"
   echo "## $2"
   echo "##"
+  echo ""
+}
+
+function output_tail() {
+  echo ""
+  echo "################################################################################"
   echo ""
 }
 
