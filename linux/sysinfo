@@ -121,6 +121,6 @@ EOF
 }
 
 case "$1" in
-  source) ;;
-  *) print_sysinfo;;
+  print) print_sysinfo;;
+  *) ;;
 esac
