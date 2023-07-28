@@ -9,74 +9,96 @@ KERNEL_VERSION=$(uname -v)
 
 # cat /etc/*release*
 if [ -f "/etc/os-release" ]; then
+  OS_NAME=$(grep '^NAME=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
   OS_ID=$(grep '^ID=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
-  OS_LIKE=$(grep '^ID_LIKE=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
-#     OS_NAME=$(grep '^NAME=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
-  OS_NAME=$(grep '^PRETTY_NAME=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
   OS_VERSION=$(grep '^VERSION_ID=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_LIKE=$(grep '^ID_LIKE=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_PRETTY_NAME=$(grep '^PRETTY_NAME=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
   OS_BIT=$(getconf LONG_BIT)
 # Ubuntu
 elif [ -f "/etc/lsb-release" ]; then
+  OS_NAME=$(grep '^DISTRIB_ID=' /etc/lsb-release | awk -F '=' '{print $2}' | tr -d '"')
   OS_ID=$(grep '^DISTRIB_ID=' /etc/lsb-release | awk -F '=' '{print $2}' | tr -d '"')
   OS_VERSION=$(grep '^DISTRIB_RELEASE=' /etc/lsb-release | awk -F '=' '{print $2}' | tr -d '"')
-  OS_LIKE="ubuntu"
-  OS_NAME=$(grep '^DISTRIB_DESCRIPTION=' /etc/lsb-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_LIKE="debian"
+  OS_PRETTY_NAME=$(grep '^DISTRIB_DESCRIPTION=' /etc/lsb-release | awk -F '=' '{print $2}' | tr -d '"')
   OS_BIT=$(getconf LONG_BIT)
-# CentOS, Red Hat
-elif [ -f "/etc/redhat-release" ]; then
-  OS_ID="$(grep -o 'release.*' /etc/redhat-release | cut -d' ' -f3)"
-  OS_VERSION="$(grep -o 'release.*' /etc/redhat-release | cut -d' ' -f2)"
-  OS_LIKE="redhat"
-  OS_NAME="$(grep . /etc/redhat-release | awk -F 'release' '{print $2}')"
-# Fedora
-elif [ -f "/etc/fedora-release" ]; then
-  OS_ID=""
-  OS_VERSION=""
+# CentOS/Oracle
+elif [ -f "/etc/system-release" ]; then
+  OS_NAME="$(grep . /etc/system-release | awk -F ' release ' '{print $1}')"
+  OS_ID="$(ls -l /etc/system-release | awk -F ' -> ' '{print $2}' | awk -F '-' '{print $1}')"
+  OS_VERSION="$(grep . /etc/system-release | awk -F ' release ' '{print $2}' | awk -F ' ' '{print $1}')"
   OS_LIKE="fedora"
-  OS_NAME="fedora"
+  OS_PRETTY_NAME="$(grep . /etc/system-release)"
+  OS_BIT=$(getconf LONG_BIT)
+# Redhat
+elif [ -f "/etc/redhat-release" ]; then
+  OS_NAME="$(grep . /etc/redhat-release | awk -F ' release ' '{print $1}')"
+  OS_ID="$(ls -l /etc/system-release | awk -F ' -> ' '{print $2}' | awk -F '-' '{print $1}')"
+  OS_VERSION="$(grep . /etc/redhat-release | awk -F 'release' '{print $2}' | awk -F ' ' '{print $1}')"
+  OS_LIKE="redhat"
+  OS_PRETTY_NAME="$(grep . /etc/redhat-release)"
+  OS_BIT=$(getconf LONG_BIT)
 # Debian
 elif [ -f "/etc/debian_release" ]; then
-  OS_ID=""
+  OS_NAME="debian"
+  OS_ID="debian"
   OS_VERSION=""
   OS_LIKE="debian"
-  OS_NAME="debian"
+  OS_PRETTY_NAME="$OS_NAME $OS_VERSION"
+# Fedora
+elif [ -f "/etc/fedora-release" ]; then
+  OS_NAME="fedora"
+  OS_ID="fedora"
+  OS_VERSION=""
+  OS_LIKE="fedora"
 # SUSE
 elif [ -f "/etc/SuSE-release" ]; then
-  OS_ID=""
-  OS_VERSION=""
-  OS_LIKE="SuSE"
-  OS_NAME="SuSE"
+  OS_NAME="$(sed -n 1p /etc/SuSE-release | awk -F' ' '{print $1}')"
+  OS_ID="suse"
+  OS_VERSION="grep '^VERSION' /etc/SuSE-release | gawk -F= '{ print $2 }' | sed 's/ //'"
+  OS_LIKE="suse"
+  OS_PRETTY_NAME="$OS_NAME $OS_VERSION"
 # Gentoo
 elif [ -f "/etc/gentoo-release" ]; then
-  OS_ID=""
-  OS_VERSION=""
+  OS_NAME="$(cat /etc/gentoo-release | awk -F'version' '{print $1}')"
+  OS_ID="gentoo"
+  OS_VERSION="$(cat /etc/gentoo-release | awk -F'version' '{print $2}')"
   OS_LIKE="gentoo"
-  OS_NAME="gentoo"
-# Amazon Linux
-elif [ -f "/etc/system-release" ]; then
-  OS_ID=""
-  OS_VERSION=""
-  OS_LIKE="amazon"
-  OS_NAME=""
+  OS_PRETTY_NAME="$(cat /etc/gentoo-release)"
 # Alpine
 elif [ -f "/etc/alpine-release" ]; then
+  OS_NAME=""
   OS_ID=""
   OS_VERSION=""
   OS_LIKE="alpine"
-  OS_NAME=""
+  OS_PRETTY_NAME="$OS_NAME $OS_VERSION"
 #
 elif [ -f "/etc/issue" ]; then
+  OS_NAME=$(grep '' /etc/issue | awk -F ' ' '{print $1 " " $2 " " $3}')
   OS_ID=""
   OS_VERSION=""
   OS_LIKE=""
-  OS_NAME=$(grep '' /etc/issue | awk -F ' ' '{print $1 " " $2 " " $3}')
+  OS_PRETTY_NAME="$OS_NAME $OS_VERSION"
 # Synology
 elif [ -f "/etc/VERSION" ] && [ -d "/usr/syno" ]; then
+  OS_NAME="Synology DSM"
   OS_ID=""
 #     OS_VERSION=$(grep 'productversion' /etc/VERSION | awk -F '=' '{print $2}' | tr -d '"')
   OS_VERSION="$(grep 'productversion\|buildnumber\|smallfixnumber' /etc/VERSION | xargs echo | tr -d " " | sed -e 's/productversion=//' -e 's/buildnumber=/-/' -e 's/smallfixnumber=/ Update /')"
   OS_LIKE="synology"
-  OS_NAME="Synology DSM"
+  OS_PRETTY_NAME="$OS_NAME $OS_VERSION"
+fi
+
+# Debian/Ubuntu
+if [[ "$OS_LIKE" == "debian" ]]; then
+  OS_CMD="apt"
+# RHEL/CentOS/RockyLinux/Ubuntu
+elseif [[ "$OS_LIKE" == "rhel*" ]]; then
+  OS_CMD="yum"
+# fedora
+elseif [[ "$OS_LIKE" ~= "fedora" ]]; then
+  OS_CMD="dnf"
 fi
 
 cat <<EOF
@@ -84,8 +106,10 @@ KERNEL_NAME=$KERNEL_NAME
 KERNEL_RELEASE=$KERNEL_RELEASE
 KERNEL_VERSION=$KERNEL_VERSION
 ARCHITECTURE=$ARCHITECTURE
+OS_NAME=$OS_NAME
 OS_ID=$OS_ID
 OS_VERSION=$OS_VERSION
 OS_LIKE=$OS_LIKE
-OS_NAME=$OS_NAME
+OS_PRETTY_NAME=$OS_PRETTY_NAME
+OS_BIT=$OS_BIT
 EOF
