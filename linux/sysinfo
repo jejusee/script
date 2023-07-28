@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# 시스템정보 확인
+HOSTNAME=$(uname -n)
+ARCHITECTURE=$(uname -m)
+KERNEL_NAME=$(uname -s)     # Linux
+KERNEL_RELEASE=$(uname -r)
+KERNEL_VERSION=$(uname -v)
+
+# cat /etc/*release*
+if [ -f "/etc/os-release" ]; then
+  OS_ID=$(grep '^ID=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_LIKE=$(grep '^ID_LIKE=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
+#     OS_NAME=$(grep '^NAME=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_NAME=$(grep '^PRETTY_NAME=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_VERSION=$(grep '^VERSION_ID=' /etc/os-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_BIT=$(getconf LONG_BIT)
+# Ubuntu
+elif [ -f "/etc/lsb-release" ]; then
+  OS_ID=$(grep '^DISTRIB_ID=' /etc/lsb-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_VERSION=$(grep '^DISTRIB_RELEASE=' /etc/lsb-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_LIKE="ubuntu"
+  OS_NAME=$(grep '^DISTRIB_DESCRIPTION=' /etc/lsb-release | awk -F '=' '{print $2}' | tr -d '"')
+  OS_BIT=$(getconf LONG_BIT)
+# CentOS, Red Hat
+elif [ -f "/etc/redhat-release" ]; then
+  OS_ID="$(grep -o 'release.*' /etc/redhat-release | cut -d' ' -f3)"
+  OS_VERSION="$(grep -o 'release.*' /etc/redhat-release | cut -d' ' -f2)"
+  OS_LIKE="redhat"
+  OS_NAME="$(grep . /etc/redhat-release | awk -F 'release' '{print $2}')"
+# Fedora
+elif [ -f "/etc/fedora-release" ]; then
+  OS_ID=""
+  OS_VERSION=""
+  OS_LIKE="fedora"
+  OS_NAME="fedora"
+# Debian
+elif [ -f "/etc/debian_release" ]; then
+  OS_ID=""
+  OS_VERSION=""
+  OS_LIKE="debian"
+  OS_NAME="debian"
+# SUSE
+elif [ -f "/etc/SuSE-release" ]; then
+  OS_ID=""
+  OS_VERSION=""
+  OS_LIKE="SuSE"
+  OS_NAME="SuSE"
+# Gentoo
+elif [ -f "/etc/gentoo-release" ]; then
+  OS_ID=""
+  OS_VERSION=""
+  OS_LIKE="gentoo"
+  OS_NAME="gentoo"
+# Amazon Linux
+elif [ -f "/etc/system-release" ]; then
+  OS_ID=""
+  OS_VERSION=""
+  OS_LIKE="amazon"
+  OS_NAME=""
+# Alpine
+elif [ -f "/etc/alpine-release" ]; then
+  OS_ID=""
+  OS_VERSION=""
+  OS_LIKE="alpine"
+  OS_NAME=""
+#
+elif [ -f "/etc/issue" ]; then
+  OS_ID=""
+  OS_VERSION=""
+  OS_LIKE=""
+  OS_NAME=$(grep '' /etc/issue | awk -F ' ' '{print $1 " " $2 " " $3}')
+# Synology
+elif [ -f "/etc/VERSION" ] && [ -d "/usr/syno" ]; then
+  OS_ID=""
+#     OS_VERSION=$(grep 'productversion' /etc/VERSION | awk -F '=' '{print $2}' | tr -d '"')
+  OS_VERSION="$(grep 'productversion\|buildnumber\|smallfixnumber' /etc/VERSION | xargs echo | tr -d " " | sed -e 's/productversion=//' -e 's/buildnumber=/-/' -e 's/smallfixnumber=/ Update /')"
+  OS_LIKE="synology"
+  OS_NAME="Synology DSM"
+fi
+
+cat <<EOF
+KERNEL_NAME=$KERNEL_NAME
+KERNEL_RELEASE=$KERNEL_RELEASE
+KERNEL_VERSION=$KERNEL_VERSION
+ARCHITECTURE=$ARCHITECTURE
+OS_ID=$OS_ID
+OS_VERSION=$OS_VERSION
+OS_LIKE=$OS_LIKE
+OS_NAME=$OS_NAME
+EOF
