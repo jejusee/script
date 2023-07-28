@@ -4,5 +4,5 @@
 1. 시스템 정보 가져오기
   
 ```
-curl -s https://raw.githubusercontent.com/jejusee/linux_script/main/sysinfo.sh | sudo bash
+curl -s https://raw.githubusercontent.com/jejusee/script/main/linux/sysinfo | sudo bash
 ```
