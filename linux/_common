@@ -109,7 +109,7 @@ function check_header() {
   echo -n "$filename... "; if [ ! -f $filename ]; then curl -sO "$1"; fi; source "$filename"; echo "OK!!";
 }
 
-function output_header() {
+function output_title() {
   echo ""
   echo "################################################################################"
   echo "##"
@@ -119,10 +119,8 @@ function output_header() {
   echo ""
 }
 
-function output_tail() {
-  echo ""
+function output_line() {
   echo "################################################################################"
-  echo ""
 }
 
 function print_sysinfo() {
