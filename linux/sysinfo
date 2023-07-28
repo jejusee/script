@@ -120,4 +120,7 @@ OS_CMD=$OS_CMD
 EOF
 }
 
-if [ ! "$1" == "source" ]; then print_sysinfo; fi
+case "$1" in
+  source) ;;
+  *) print_sysinfo;;
+esac
