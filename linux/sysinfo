@@ -104,8 +104,7 @@ elif [[ "$OS_LIKE" =~ "synology" ]]; then
   OS_CMD="ipkg"
 fi
 
-if [ "$1" = "print"  ];then
-
+if [ ! "$1" == "source" ]; then
 cat <<EOF
 KERNEL_NAME=$KERNEL_NAME
 KERNEL_RELEASE=$KERNEL_RELEASE
@@ -119,5 +118,4 @@ OS_PRETTY=$OS_PRETTY
 OS_BIT=$OS_BIT
 OS_CMD=$OS_CMD
 EOF
-
 fi
