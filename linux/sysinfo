@@ -94,10 +94,10 @@ fi
 if [[ "$OS_LIKE" == "debian" ]]; then
   OS_CMD="apt"
 # RHEL/CentOS/RockyLinux/Ubuntu
-elseif [[ "$OS_LIKE" == "rhel*" ]]; then
+elif [[ "$OS_LIKE" == "rhel*" ]]; then
   OS_CMD="yum"
 # fedora
-elseif [[ "$OS_LIKE" ~= "fedora" ]]; then
+elif [[ "$OS_LIKE" ~= "fedora" ]]; then
   OS_CMD="dnf"
 fi
 
