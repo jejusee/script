@@ -83,7 +83,7 @@ elif [ -f "/etc/issue" ]; then
 # Synology
 elif [ -f "/etc/VERSION" ] && [ -d "/usr/syno" ]; then
   OS_NAME="Synology DSM"
-  OS_ID=""
+  OS_ID="synology"
 #     OS_VERSION=$(grep 'productversion' /etc/VERSION | awk -F '=' '{print $2}' | tr -d '"')
   OS_VERSION="$(grep 'productversion\|buildnumber\|smallfixnumber' /etc/VERSION | xargs echo | tr -d " " | sed -e 's/productversion=//' -e 's/buildnumber=/-/' -e 's/smallfixnumber=/ Update /')"
   OS_LIKE="synology"
@@ -99,6 +99,9 @@ elif [[ "$OS_LIKE" =~ ^"rhel" ]]; then
 # fedora
 elif [[ "$OS_LIKE" =~ "fedora" ]]; then
   OS_CMD="dnf"
+# synology
+elif [[ "$OS_LIKE" =~ "synology" ]]; then
+  OS_CMD="ipkg"
 fi
 
 cat <<EOF
