@@ -124,6 +124,16 @@ function output_line() {
   echo "////////////////////////////////////////////////////////////////////////////////"
 }
 
+#
+function update_os() {
+  case $OS_CMD in
+    apt) sudo apt update -y && sudo apt upgrade -y;;
+    yum) sudo yum update -y && sudo yum upgrade -y;;
+    dnf) sudo dnf update -y && sudo dnf upgrade -y;;
+    *) return;;
+  esac
+}
+
 function print_sysinfo() {
 cat <<EOF
 KERNEL_NAME=$KERNEL_NAME
@@ -141,6 +151,7 @@ EOF
 }
 
 case "$1" in
+  updateos) update_os;;
   sysinfo) print_sysinfo;;
   *) ;;
 esac
