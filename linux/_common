@@ -92,7 +92,7 @@ fi
 
 # Debian/Ubuntu
 if [[ "$OS_LIKE" == "debian" ]]; then
-  OS_CMD="apt"
+  OS_CMD="apt-get"
 # RHEL/CentOS/RockyLinux/Ubuntu
 elif [[ "$OS_LIKE" =~ ^"rhel" ]]; then
   OS_CMD="yum"
@@ -126,12 +126,7 @@ function output_line() {
 
 #
 function update_os() {
-  case $OS_CMD in
-    apt) sudo apt update -y && sudo apt upgrade -y;;
-    yum) sudo yum update -y && sudo yum upgrade -y;;
-    dnf) sudo dnf update -y && sudo dnf upgrade -y;;
-    *) return;;
-  esac
+    $OS_CMD update -y && $OS_CMD upgrade -y;;
 }
 
 function print_sysinfo() {
