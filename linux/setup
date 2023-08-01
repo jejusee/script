@@ -4,24 +4,15 @@
 curl -sO "https://raw.githubusercontent.com/jejusee/script/main/linux/_common"; source "_common";  # 필수
 
 #
-function update_os() {
-  case $OS_CMD in
-    apt) sudo apt update -y && sudo apt upgrade -y;;
-    yum) sudo yum update -y && sudo yum upgrade -y;;
-    dnf) sudo dnf update -y && sudo dnf upgrade -y;;
-    *) return;;
-  esac
-  read -p "# 계속하려면 아무키나 누르세요..."
+function initialize() {
 }
+
 #
 function install_docker() {
-  case $OS_CMD in
-    apt) ;;
-    yum) ;;
-    dnf) ;;
-    *) return;;
-  esac
-  read -p "# 계속하려면 아무키나 누르세요..."
+}
+
+#
+function install_rclone() {
 }
 
 #
@@ -33,19 +24,21 @@ while :; do
   echo ""
   echo " 1) update"
   echo " 2) docker & docker-compose 설치"
+  echo " 3) rclone 설치 (이치로님 버전)"
   echo ""
   echo " q) 종료"
   echo ""
-  
-  output_line
+  echo "$LINE"
 
-  read -p "# 원하시는 기능을 입력하세요.> " SELECT_VALUE
+read -p "# 원하시는 기능을 입력하세요.> " SELECT_VALUE
   echo ""
 
   case $SELECT_VALUE in
     1) update_os;;
     2) install_docker;;
-    quit) break;;
+    3) install_rclone;;
+    q) break;;
   esac
 
+  read -p "# 계속하려면 아무키나 누르세요..."
 done
