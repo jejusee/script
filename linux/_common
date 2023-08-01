@@ -124,11 +124,11 @@ function output_title() {
 }
 
 #
-function update_os() {
+function updateos() {
     $OS_CMD update -y && $OS_CMD upgrade -y;;
 }
 
-function print_sysinfo() {
+function sysinfo() {
 cat <<EOF
 KERNEL_NAME=$KERNEL_NAME
 KERNEL_RELEASE=$KERNEL_RELEASE
@@ -145,7 +145,7 @@ EOF
 }
 
 case "$1" in
-  updateos) update_os;;
-  sysinfo) print_sysinfo;;
+  updateos) updateos;;
+  sysinfo) sysinfo;;
   *) ;;
 esac
