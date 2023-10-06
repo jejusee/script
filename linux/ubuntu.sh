@@ -66,6 +66,7 @@ function set_ramdisk() {
 #
 function install_docker() {
     sudo apt install docker.io
+    sudo chmod 666 /var/run/docker.sock
 }
 
 #
