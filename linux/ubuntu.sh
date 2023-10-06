@@ -57,16 +57,17 @@ function set_timezone() {
 
 #
 function set_swap() {
-    # 4G 스왑파일 생성 후 권한 수정
+    # 4G 스왑파일 생성
     sudo fallocate -l 4G /swapfile
-    # 스왑파일 권한 수정
+    # 스왑 파일 권한 수정(root 계정만 읽기 쓰기 가능)
     sudo chmod 600 /swapfile
-    # 해당파일이 스왑 공간으로 사용될 것임을 명시 및 메모리 활성화
-    sudo mkswap /swapfile
-    # 스왑파일 메모리로 활성화
-    sudo swapon /swapfile
-    # 재부팅시 자동활성화 되도록 /etc/fstab 에 명령 추가
+    # 스왑 파일을 리눅스의 스왑 영역으로 설정하고 활성화
+    sudo mkswap /swapfile && sudo swapon /swapfile
+    # 재부팅시 자동적용 되도록 /etc/fstab 에 명령 추가
     echo -e "/swapfile	none	swap	sw	0 0" >> /etc/fstab
+
+    # 제거하고 싶을 경우 /etc/fstab 파일에서 명령 삭제 후 아래 명령 실행
+    # sudo swapoff -v /swapfile && sudo rm /swapfile
 }
 
 #
