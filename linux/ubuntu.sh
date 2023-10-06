@@ -23,6 +23,7 @@ while :; do
     echo ""
     echo " b1) docker 설치"
     echo " b2) docker-compose 설치"
+    echo " b3) tailscale 설치"
     echo ""
     echo " u) OS Update"
     echo " q) 종료"
@@ -37,6 +38,7 @@ while :; do
       a3) set_ramdisk;;
       b1) install_docker;;
       b2) install_docker_compose;;
+      b2) install_tailscale;;
       u) update_os;;
       q) break;;
     esac
@@ -83,4 +85,10 @@ function install_docker() {
 #
 function install_docker_compose() {
     sudo apt install docker-compose
+}
+
+#
+function install_tailscale() {
+    curl -fsSL https://tailscale.com/install.sh | sh
+    tailscale up
 }
