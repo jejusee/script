@@ -57,6 +57,16 @@ function set_timezone() {
 
 #
 function set_swap() {
+    # 4G 스왑파일 생성 후 권한 수정
+    sudo fallocate -l 4G /swapfile
+    # 스왑파일 권한 수정
+    sudo chmod 600 /swapfile
+    # 해당파일이 스왑 공간으로 사용될 것임을 명시 및 메모리 활성화
+    sudo mkswap /swapfile
+    # 스왑파일 메모리로 활성화
+    sudo swapon /swapfile
+    # 재부팅시 자동활성화 되도록 /etc/fstab 에 명령 추가
+    echo -e "/swapfile	none	swap	sw	0 0" >> /etc/fstab
 }
 
 #
