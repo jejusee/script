@@ -1,121 +1,68 @@
 #!/bin/bash
 
-script_name=$(basename "$0")    # 현재 스크립트 이름
-ramdisk_path="/ramdisk"         # 램디스크 기본 경로
+# 설치 모드일 때
+if [ "$1" == "install" ]; then
 
-function show_usage() {
-    echo "Usage: $script_name <command> [options]"
-    echo "Commands:"
-    echo "  install [<path>] -s|--size <size>   Install RAM disk with specified size and optional path (default: $ramdisk_path)"
-    echo "  uninstall [<path>]                  Uninstall RAM disk with optional path (default: $ramdisk_path)"
-    echo "Examples:"
-    echo "  ./$script_name install \"$ramdisk_path\" -s=8G"
-    echo "  ./$script_name uninstall \"$ramdisk_path\""
-}
+    # 기본값 설정
+    path="/ramdisk"
+    size="8G"
 
-function create_ramdisk() {
-    local path=$1
-    local size=$2
+    # 사용자로부터 경로와 용량 입력 받기
+    read -p "Ramdisk를 설치할 경로를 입력하세요 (기본값: $path): " custom_path
+    path=${custom_path:-$path}
 
-    # 경로가 존재하지 않으면 물어봅니다.
+    # 경로가 존재하지 않을 경우
     if [ ! -d "$path" ]; then
-        read -p "The path $path does not exist. Would you like to create it? (y/n): " response
+        read -p "\"$path\" 경로가 존재하지 않습니다. 새로 만드시겠습니까? (y/n): " response
         if [ "$response" != "y" ]; then
-            echo "Installation aborted."
+            echo "설치를 취소하였습니다."
             exit 1
         fi
         sudo mkdir -p $path
+    # 경로가 이미 마운트되어 있을 경우
     elif mountpoint -q $path; then
-        read -p "A RAM disk is already mounted at $path. Do you want to reinstall it? (y/n): " response
+        read -p "\"$path\" 에 이미 램디스크가 마운트 되어 있습니다. 다시 설치하시겠습니까? (y/n): " response
         if [ "$response" != "y" ]; then
-            echo "Installation aborted."
+            echo "설치를 취소하였습니다."
             exit 1
         fi
         sudo umount $path
     fi
+    
+    read -p "Ramdisk의 용량을 입력하세요 (예: 100M, 1G, 기본값: $size): " custom_size
+    size=${custom_size:-$size}
 
+    # Ramdisk 생성
     sudo mount -t tmpfs -o size=$size tmpfs $path
+    echo "램디스크 설치하였습니다."
+
+    # 생성된 Ramdisk 정보 출력
+    df -h $path
     
     # /etc/fstab에 등록
     sudo sed -i "\~$path~d" /etc/fstab
     echo "tmpfs $path tmpfs size=$size 0 0" | sudo tee -a /etc/fstab > /dev/null
+    echo "시작시 램디스크를 사용합니다."
 
-    echo "RAM disk successfully installed and set to mount on startup."
-}
+# 삭제 모드일 때
+elif [ "$1" == "uninstall" ]; then
 
-function remove_ramdisk() {
-    local path=$1
+    # 현재 설치된 Ramdisk 목록 출력
+    echo "현재 설치된 Ramdisk 목록:"
+    df -h | grep tmpfs
 
-    # 경로가 존재하지 않으면 물어봅니다.
-    if [ ! -d "$path" ]; then
-        echo "The path $path does not exist. No action taken."
-        exit 1
-    elif ! mountpoint -q $path; then
-        echo "There is no RAM disk mounted at $path. No action taken."
-        exit 1
-    fi
+    # 사용자로부터 삭제할 Ramdisk 선택 받기
+    read -p "삭제할 Ramdisk의 경로를 입력하세요: " path
 
-    read -p "Are you sure you want to uninstall the RAM disk at $path? (y/n): " response
-    if [ "$response" != "y" ]; then
-        echo "Uninstallation aborted."
-        exit 1
-    fi
-
+    # Ramdisk 삭제
     sudo umount $path
     sudo rm -rf $path
-    
+    echo "Ramdisk가 삭제되었습니다."
+
     # /etc/fstab에서 삭제
     sudo sed -i "\~$path~d" /etc/fstab
-
-    echo "RAM disk successfully uninstalled and removed from startup."
-}
-
-if [ $# -eq 0 ]; then
-    show_usage
-    exit 1
+    echo "시작시 램디스크를 사용하지 않습니다."
+else    
+    script_name=$(basename "$0")    # 현재 스크립트 이름
+    echo "사용법: ./$script_name [install | uninstall]"
 fi
-
-command=$1
-shift
-
-case $command in
-    install)
-        size=""
-
-        if [ "$1" != "" ] && [[ "$1" != -* ]]; then
-            ramdisk_path=$1
-            shift
-        fi
-
-        while [ "$1" != "" ]; do
-            case $1 in
-                -s=*|--size=* )         size="${1#*=}"
-                                        ;;
-                -s|--size )             shift
-                                        size=$1
-                                        ;;
-                * )                     show_usage
-                                        exit 1
-            esac
-            shift
-        done
-
-        if [ -z "$size" ]; then
-            echo "Error: Size is required for installation."
-            show_usage
-            exit 1
-        fi
-
-        create_ramdisk $ramdisk_path $size
-        ;;
-    uninstall)
-
-        if [ "$1" != "" ] && [[ "$1" != -* ]]; then
-            ramdisk_path=$1
-        fi
-
-        remove_ramdisk $ramdisk_path
-        ;;
-    * ) show_usage
-        exit 1
-esac
