@@ -14,3 +14,13 @@ if [ ! -f "_common" ]; then echo ""; exit; fi; source "_common";
 # 시스템 정보 가져오기
 curl -sSL https://raw.githubusercontent.com/jejusee/script/main/linux/_common | bash -s sysinfo
 ```
+
+```
+# 램디스크 설치 or 삭제
+bash <(curl -s https://raw.githubusercontent.com/jejusee/script/main/linux/ramdisk.sh) install
+bash <(curl -s https://raw.githubusercontent.com/jejusee/script/main/linux/ramdisk.sh) uninstall
+
+bash <(curl -s https://raw.githubusercontent.com/jejusee/script/main/linux/ramdisk) setup
+
+
+```
