@@ -6,14 +6,6 @@ version="2023.10.27-1308"
 path="/mnt/ramdisk"
 size="8G"
 
-function show_usage() {
-    echo "Usage: $script_name [install|uninstall]"
-    echo "Commands:"
-    echo "  install                        Install RAM disk"
-    echo "  uninstall                      Uninstall RAM disk"
-    exit 1
-}
-
 function install_ramdisk() {
     # 사용자로부터 경로와 용량 입력 받기
     read -p "Ramdisk를 설치할 위치를 입력하세요 (기본값: $path): " custom_path
@@ -54,6 +46,7 @@ function install_ramdisk() {
     echo "tmpfs $path tmpfs size=$size 0 0" | sudo tee -a /etc/fstab > /dev/null
 
     echo "램디스크 설치완료!! 시작시 자동실행합니다."
+    exit 1
 }
 
 function uninstall_ramdisk() {
@@ -81,6 +74,7 @@ function uninstall_ramdisk() {
         sudo sed -i "\~$selected_disk~d" /etc/fstab
 
         echo "램디스크 삭제완료!! 시작시 사용하지 않습니다."
+        exit 2
     else
         echo "Invalid choice. Please try again."
     fi
